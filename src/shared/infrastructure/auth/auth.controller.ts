@@ -6,14 +6,17 @@ import {
   UseGuards,
   Body,
 } from '@nestjs/common';
-import { IsPublic } from '@/modules/users/decorators/is-public.decorator';
+import { IsPublic } from '@/shared/domain/decorators/is-public.decorator';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTooManyRequestsResponse,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { LoginResponse } from './dto/login.dto';
 
@@ -24,22 +27,19 @@ export class AuthController {
   @ApiOperation({
     description: 'This endpoint is used to login with email and password.',
   })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Your login has been successfully completed.',
     type: LoginResponse,
   })
-  @ApiResponse({
-    status: 403,
+  @ApiBadRequestResponse({
     description: 'Bad Request',
   })
-  @ApiResponse({
-    status: 401,
+  @ApiUnauthorizedResponse({
     description: 'Wrong email or password.',
   })
-  @ApiResponse({
-    status: 429,
-    description: 'Too many requests, try again later.',
+  @ApiTooManyRequestsResponse({
+    description:
+      'Too many requests, try again later. The rate limit is defined in environment variables.',
   })
   @UseGuards(LocalAuthGuard, ThrottlerGuard)
   async login(@Request() req) {
