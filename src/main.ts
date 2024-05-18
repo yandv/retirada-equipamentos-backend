@@ -4,6 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TransformInterceptor } from './shared/domain/transform/transform.interceptor';
+import { ExceptionHandlerFilter } from './shared/rest/exception-handler.filter';
+import { PrismaClientExceptionFilter } from './shared/rest/prisma-client-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,6 +35,8 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new ExceptionHandlerFilter());
+  app.useGlobalFilters(new PrismaClientExceptionFilter());
 
   await app.listen(serverPort, () => {
     console.log(`Server is running on http://localhost:${serverPort}`);
