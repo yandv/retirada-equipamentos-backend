@@ -3,56 +3,64 @@ import { Equipment } from '@/shared/domain/entities/equipment.entity';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
 import { ConsumeEquipmentDto } from './dto/consume.equipment.dto';
-
-const usersMock: Equipment[] = [
-  {
-    id: 1,
-    equipmentName: 'Equipamento Genérico 1',
-    stock: 5,
-    creatorId: 1,
-  },
-  {
-    id: 2,
-    equipmentName: 'Equipamento Genérico 2',
-    stock: 3,
-    creatorId: 1,
-  },
-];
+import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class EquipmentsService {
-  getEquipments(paginable: Paginable) {
-    return usersMock
-      .slice(
-        (paginable.page - 1) * paginable.itemsPerPage,
-        paginable.page * paginable.itemsPerPage,
-      )
-      .map((equipment) => equipment);
+  constructor(private readonly prisma: PrismaService) {}
+
+  getEquipments(paginable: Paginable): Promise<Equipment[]> {
+    return this.prisma.equipment.findMany({
+      skip: paginable.itemsPerPage * (paginable.page - 1),
+      take: paginable.itemsPerPage,
+    });
   }
 
-  getEquipmentsById(id: number) {
-    return usersMock.find((equipment) => equipment.id === id);
+  getEquipmentsById(id: string) {
+    return this.prisma.equipment.findUnique({
+      where: { id },
+    });
   }
 
-  createEquipment(creatorId: number, createEquipmentDto: CreateEquipmentDto) {
-    const newEquipment = {
-      id: usersMock.length + 1,
-      creatorId,
-      ...createEquipmentDto,
-    };
-    usersMock.push(newEquipment);
-    return newEquipment;
+  createEquipment(creatorId: string, createEquipmentDto: CreateEquipmentDto) {
+    return this.prisma.equipment.create({
+      data: {
+        ...createEquipmentDto,
+        creatorId,
+      },
+    });
   }
 
-  consumeEquipment(quantity: ConsumeEquipmentDto) {
-    const equipment = usersMock.find(
-      (equipment) => equipment.id === quantity.id,
-    );
-    if (!equipment)
-      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
-    if (equipment.stock < quantity.quantity)
-      throw new HttpException('Insufficient stock', HttpStatus.BAD_REQUEST);
-    equipment.stock -= quantity.quantity;
-    return equipment;
+  consumeEquipment(id: string, consumeEquipmentDto: ConsumeEquipmentDto) {
+    const { quantity } = consumeEquipmentDto;
+
+    return this.prisma.$transaction(async (tx) => {
+      const equipment = await tx.equipment.findUnique({
+        where: { id },
+      });
+
+      if (!equipment) {
+        throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+      }
+
+      if (equipment.stock < quantity) {
+        throw new HttpException(
+          'There is not enough quantity to consume',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      await tx.equipment.update({
+        where: { id },
+        data: {
+          stock: equipment.stock - quantity,
+        },
+      });
+
+      return {
+        ...equipment,
+        stock: equipment.stock - quantity,
+      };
+    });
   }
 }

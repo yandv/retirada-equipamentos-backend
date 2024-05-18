@@ -30,7 +30,7 @@ export class UsersController {
   }
 
   @Get('/:id')
-  getUserById(@Param('id', ParseIntPipe) id: number) {
+  getUserById(@Param('id') id: string) {
     return this.usersService.getUserById(id);
   }
 
@@ -42,7 +42,7 @@ export class UsersController {
   @Patch('/:id')
   updatePartialUser(
     @Request() req,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateUserDto: UpdatePartialUserDto,
   ) {
     if (req.user.id !== id) {
@@ -55,10 +55,7 @@ export class UsersController {
   }
 
   @Put('/:id')
-  updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateUser(id, updateUserDto);
   }
 }
