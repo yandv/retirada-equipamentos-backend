@@ -11,11 +11,16 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const status = exception.getStatus();
-    const errorResponse = exception.getResponse();
+
+    const errorMessage = exception?.message ?? 'Internal Server Error';
+    const exceptionClassName = exception.constructor.name;
 
     response.status(status).json({
       statusCode: status,
-      message: errorResponse,
+      data: {
+        message: errorMessage,
+        error: exceptionClassName,
+      },
     });
   }
 }
