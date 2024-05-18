@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -37,6 +38,11 @@ export class UsersController {
   @Post('/')
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
+  }
+
+  @Delete('/:id')
+  deleteUserById(@Param('id') id: string) {
+    return this.usersService.deleteUserById(id);
   }
 
   @Patch('/:id')

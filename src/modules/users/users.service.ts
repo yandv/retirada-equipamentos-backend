@@ -42,17 +42,29 @@ export class UsersService {
       .then(UserDto.fromEntity);
   }
 
+  deleteUserById(id: string) {
+    return this.prisma.user
+      .delete({
+        where: { id },
+      })
+      .then(UserDto.fromEntity);
+  }
+
   updateUser(id: string, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
-      where: { id },
-      data: updateUserDto,
-    });
+    return this.prisma.user
+      .update({
+        where: { id },
+        data: updateUserDto,
+      })
+      .then(UserDto.fromEntity);
   }
 
   updatePartialUser(id: string, partialUser: UpdatePartialUserDto) {
-    return this.prisma.user.update({
-      where: { id },
-      data: partialUser,
-    });
+    return this.prisma.user
+      .update({
+        where: { id },
+        data: partialUser,
+      })
+      .then(UserDto.fromEntity);
   }
 }
