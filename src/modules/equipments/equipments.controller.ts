@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { EquipmentsService } from './equipments.service';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
-import { ConsumeEquipmentDto } from './dto/consume.equipment.dto';
+import { QuantityEquipmentDto } from './dto/quantity.equipment.dto';
 
 @Controller('equipments')
 export class EquipmentsController {
@@ -48,8 +48,16 @@ export class EquipmentsController {
   @Patch('/retirar/:id')
   consumeEquipment(
     @Param('id') id: string,
-    @Body() quantity: ConsumeEquipmentDto,
+    @Body() quantity: QuantityEquipmentDto,
   ) {
     return this.equipmentService.consumeEquipment(id, quantity);
+  }
+
+  @Patch('/adicionar/:id')
+  addEquipment(
+    @Param('id') id: string,
+    @Body() quantity: QuantityEquipmentDto,
+  ) {
+    return this.equipmentService.addEquipment(id, quantity);
   }
 }
