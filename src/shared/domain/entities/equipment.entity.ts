@@ -1,8 +1,8 @@
 export class Equipment {
-    id: number
+    id: string
 
     equipmentName: string
     stock: number
 
-    creatorId: number
+    creatorId: string
 }

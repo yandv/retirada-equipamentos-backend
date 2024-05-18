@@ -29,3 +29,9 @@ export class LoginResponse {
   })
   accessToken: string;
 }
+
+export interface UserPayload {
+  id: string;
+  iat?: number;
+  exp?: number;
+}

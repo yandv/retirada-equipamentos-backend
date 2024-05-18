@@ -30,7 +30,7 @@ export class EquipmentsController {
   }
 
   @Get('/:id')
-  getEquipmentById(@Param('id', ParseIntPipe) id: number) {
+  getEquipmentById(@Param('id') id: string) {
     return this.equipmentService.getEquipmentsById(id);
   }
 
@@ -46,7 +46,10 @@ export class EquipmentsController {
   }
 
   @Patch('/retirar/:id')
-  consumeEquipment(@Body() quantity: ConsumeEquipmentDto) {
-    return this.equipmentService.consumeEquipment(quantity);
+  consumeEquipment(
+    @Param('id') id: string,
+    @Body() quantity: ConsumeEquipmentDto,
+  ) {
+    return this.equipmentService.consumeEquipment(id, quantity);
   }
 }
