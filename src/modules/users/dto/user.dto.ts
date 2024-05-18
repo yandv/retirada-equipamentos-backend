@@ -9,7 +9,7 @@ export class UserDto {
   cpf: string;
 
   @Exclude()
-  password: string;
+  password?: string;
 
   static fromEntity(user: Partial<UserDto>): UserDto | null {
     if (!user) return null;
